@@ -5,6 +5,8 @@ Can be useful with support and troubleshooting to identify the scope, usage, and
 feature or configuration setting.   Use with caution as direct SQL database query is not supported.  
 Recommend using "NOLOCK" hint and running query after business hours.
 
+[![](https://raw.githubusercontent.com/spjeff/spquery/master/doc/download.png)](https://github.com/spjeff/spquery/releases/download/spquery/SPQuery.ps1)
+
 ## Features
 * Simple GUI to loop a given SQL query across all local SharePoint farm content databases
 * Grid view  results can be copy/pasted to Excel  
