@@ -75,10 +75,22 @@ $form.Controls.Add($dataGridView)
 Function RunQuery() {
     $global:dt = New-Object System.Data.Datatable "SPQuery"
     $cdbs = Get-SPContentDatabase
+	$counter = 0
+	
+	# Loop content databases
     foreach ($cdb in $cdbs) {
+		# Scope
         $i = $cdb.NormalizedDataSource
         $d = $cdb.Name
+		
+		# Progress
+		Write-Progress -Activity "Opening " -Status $d -PercentComplete (($counter/$cdbs.Count)*100)
+		$counter++
+		
+		# Execute
         $res = Invoke-Sqlcmd -Query $txtQuery.Text -QueryTimeout 120 -ServerInstance $i -Database $d
+		
+		# Parse results
 		if ($res) {
 			$cols = $res[0] | gm |? {$_.MemberType -eq "Property"}
 			if ($global:dt.Columns.Count -eq 0) {
@@ -104,6 +116,7 @@ Function RunQuery() {
 			}
 		}
     }
+	Write-Progress -Activity "Completed" -Completed
     
     # Bind
     $dataGridView.DataSource = $global:dt
