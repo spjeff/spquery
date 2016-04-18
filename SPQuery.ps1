@@ -79,28 +79,30 @@ Function RunQuery() {
         $i = $cdb.NormalizedDataSource
         $d = $cdb.Name
         $res = Invoke-Sqlcmd -Query $txtQuery.Text -QueryTimeout 120 -ServerInstance $i -Database $d
-        $cols = $res[0] | gm |? {$_.MemberType -eq "Property"}
-        if ($global:dt.Columns.Count -eq 0) {
-        foreach ($c in $cols) {
-            # Cols
-            $global:dt.Columns.Add($c.Name) | Out-Null
-        }
-        $global:dt.Columns.Add("WebAppURL") | Out-Null
-        $global:dt.Columns.Add("SQLInstance") | Out-Null
-        $global:dt.Columns.Add("ContentDB") | Out-Null
-        }
-        foreach ($r in $res) {
-            # Rows
-            $newRow = $global:dt.NewRow()
-            foreach ($c in $cols) {
-                $prop = $c.Name
-                $newRow[$prop] = $r[$prop]
-            }
-            $newRow["WebAppURL"] = $cdb.WebApplication.URL
-            $newRow["SQLInstance"] = $cdb.NormalizedDataSource
-            $newRow["ContentDB"] = $cdb.Name
-            $global:dt.Rows.Add($newRow) | Out-Null
-        }
+		if ($res) {
+			$cols = $res[0] | gm |? {$_.MemberType -eq "Property"}
+			if ($global:dt.Columns.Count -eq 0) {
+				foreach ($c in $cols) {
+					# Cols
+					$global:dt.Columns.Add($c.Name) | Out-Null
+				}
+				$global:dt.Columns.Add("WebAppURL") | Out-Null
+				$global:dt.Columns.Add("SQLInstance") | Out-Null
+				$global:dt.Columns.Add("ContentDB") | Out-Null
+			}
+			foreach ($r in $res) {
+				# Rows
+				$newRow = $global:dt.NewRow()
+				foreach ($c in $cols) {
+					$prop = $c.Name
+					$newRow[$prop] = $r[$prop]
+				}
+				$newRow["WebAppURL"] = $cdb.WebApplication.URL
+				$newRow["SQLInstance"] = $cdb.NormalizedDataSource
+				$newRow["ContentDB"] = $cdb.Name
+				$global:dt.Rows.Add($newRow) | Out-Null
+			}
+		}
     }
     
     # Bind
