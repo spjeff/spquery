@@ -17,8 +17,8 @@
 .NOTES
 	File Name		: SPQuery.ps1
 	Author			: Jeff Jones - @spjeff
-	Version			: 1.0
-	Last Modified	: 04-18-2016
+	Version			: 0.10
+	Last Modified	: 06-15-2016
 .LINK
 	https://github.com/spjeff/spquery
 #>
@@ -75,33 +75,40 @@ $form.Controls.Add($dataGridView)
 Function RunQuery() {
     $global:dt = New-Object System.Data.Datatable "SPQuery"
     $cdbs = Get-SPContentDatabase
-	$counter = 0
-	
-	# Loop content databases
     foreach ($cdb in $cdbs) {
-		# Scope
         $i = $cdb.NormalizedDataSource
         $d = $cdb.Name
-		
-		# Progress
-		Write-Progress -Activity "Opening " -Status $d -PercentComplete (($counter/$cdbs.Count)*100)
-		$counter++
-		
-		# Execute
         $res = Invoke-Sqlcmd -Query $txtQuery.Text -QueryTimeout 120 -ServerInstance $i -Database $d
-		
-		# Parse results
 		if ($res) {
-			$cols = $res[0] | gm |? {$_.MemberType -eq "Property"}
-			if ($global:dt.Columns.Count -eq 0) {
-				foreach ($c in $cols) {
-					# Cols
+			# Result Columns
+			$cols = $res[0] | gm |? {$_.MemberType -eq "Property" -and $_.Name -ne "Length"}
+			foreach ($c in $cols) {
+				# Cols
+				$found = $false
+				foreach ($gc in $global:dt.Columns) {
+					if ($c.Name -eq $gc.ColumnName) {
+						$found = $true
+					}
+				}
+				if (!$found) {
 					$global:dt.Columns.Add($c.Name) | Out-Null
 				}
-				$global:dt.Columns.Add("WebAppURL") | Out-Null
-				$global:dt.Columns.Add("SQLInstance") | Out-Null
-				$global:dt.Columns.Add("ContentDB") | Out-Null
 			}
+			
+			# Standard Columns
+			if ($global:dt.Columns.Count -gt 0) {
+				if (!$global:dt.Columns["WebAppURL"]) {
+					$global:dt.Columns.Add("WebAppURL") | Out-Null
+				}
+				if (!$global:dt.Columns["SQLInstance"]) {
+					$global:dt.Columns.Add("SQLInstance") | Out-Null
+				}
+				if (!$global:dt.Columns["ContentDB"]) {
+					$global:dt.Columns.Add("ContentDB") | Out-Null
+				}
+			}
+		
+			# Result Rows
 			foreach ($r in $res) {
 				# Rows
 				$newRow = $global:dt.NewRow()
@@ -116,7 +123,6 @@ Function RunQuery() {
 			}
 		}
     }
-	Write-Progress -Activity "Completed" -Completed
     
     # Bind
     $dataGridView.DataSource = $global:dt
