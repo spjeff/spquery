@@ -25,7 +25,6 @@ Thanks!  =)
 
 ![image](http://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)
 
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/spjeff/spquery/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
 ## License
 
