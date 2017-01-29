@@ -79,49 +79,49 @@ Function RunQuery() {
         $i = $cdb.NormalizedDataSource
         $d = $cdb.Name
         $res = Invoke-Sqlcmd -Query $txtQuery.Text -QueryTimeout 120 -ServerInstance $i -Database $d
-		if ($res) {
-			# Result Columns
-			$cols = $res[0] | gm |? {$_.MemberType -eq "Property" -and $_.Name -ne "Length"}
-			foreach ($c in $cols) {
-				# Cols
-				$found = $false
-				foreach ($gc in $global:dt.Columns) {
-					if ($c.Name -eq $gc.ColumnName) {
-						$found = $true
-					}
-				}
-				if (!$found) {
-					$global:dt.Columns.Add($c.Name) | Out-Null
-				}
-			}
+        if ($res) {
+            # Result Columns
+            $cols = $res[0] | Get-Member |? {$_.MemberType -eq "Property" -and $_.Name -ne "Length"}
+            foreach ($c in $cols) {
+                # Cols
+                $found = $false
+                foreach ($gc in $global:dt.Columns) {
+                    if ($c.Name -eq $gc.ColumnName) {
+                        $found = $true
+                    }
+                }
+                if (!$found) {
+                    $global:dt.Columns.Add($c.Name) | Out-Null
+                }
+            }
 			
-			# Standard Columns
-			if ($global:dt.Columns.Count -gt 0) {
-				if (!$global:dt.Columns["WebAppURL"]) {
-					$global:dt.Columns.Add("WebAppURL") | Out-Null
-				}
-				if (!$global:dt.Columns["SQLInstance"]) {
-					$global:dt.Columns.Add("SQLInstance") | Out-Null
-				}
-				if (!$global:dt.Columns["ContentDB"]) {
-					$global:dt.Columns.Add("ContentDB") | Out-Null
-				}
-			}
+            # Standard Columns
+            if ($global:dt.Columns.Count -gt 0) {
+                if (!$global:dt.Columns["WebAppURL"]) {
+                    $global:dt.Columns.Add("WebAppURL") | Out-Null
+                }
+                if (!$global:dt.Columns["SQLInstance"]) {
+                    $global:dt.Columns.Add("SQLInstance") | Out-Null
+                }
+                if (!$global:dt.Columns["ContentDB"]) {
+                    $global:dt.Columns.Add("ContentDB") | Out-Null
+                }
+            }
 		
-			# Result Rows
-			foreach ($r in $res) {
-				# Rows
-				$newRow = $global:dt.NewRow()
-				foreach ($c in $cols) {
-					$prop = $c.Name
-					$newRow[$prop] = $r[$prop]
-				}
-				$newRow["WebAppURL"] = $cdb.WebApplication.URL
-				$newRow["SQLInstance"] = $cdb.NormalizedDataSource
-				$newRow["ContentDB"] = $cdb.Name
-				$global:dt.Rows.Add($newRow) | Out-Null
-			}
-		}
+            # Result Rows
+            foreach ($r in $res) {
+                # Rows
+                $newRow = $global:dt.NewRow()
+                foreach ($c in $cols) {
+                    $prop = $c.Name
+                    $newRow[$prop] = $r[$prop]
+                }
+                $newRow["WebAppURL"] = $cdb.WebApplication.URL
+                $newRow["SQLInstance"] = $cdb.NormalizedDataSource
+                $newRow["ContentDB"] = $cdb.Name
+                $global:dt.Rows.Add($newRow) | Out-Null
+            }
+        }
     }
     
     # Bind
@@ -134,17 +134,17 @@ Function RunSave() {
     $when = (Get-Date).ToString("yyyy-MM-dd-hh-mm-ss")
     $file = "$tmp\SPQuery-$when.xml"
     $global:dt.WriteXml($file)
-    start $tmp
+    Start-Process $tmp
 }
 #endregion
 
 # Resize
 Function VerifySize() {
-	$h = $form.Size.Height - 100
-	$w = $form.Size.Width - 40
-	if ($dataGridView.Size.Height -ne $h -or $dataGridView.Size.Width -ne $w) {
-		$dataGridView.Size = New-Object System.Drawing.Size($w,$h)
-	}
+    $h = $form.Size.Height - 100
+    $w = $form.Size.Width - 40
+    if ($dataGridView.Size.Height -ne $h -or $dataGridView.Size.Width -ne $w) {
+        $dataGridView.Size = New-Object System.Drawing.Size($w,$h)
+    }
 }
 
 # Resize
