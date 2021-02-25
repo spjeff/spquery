@@ -96,7 +96,7 @@ Function RunQuery() {
             }
 			
             # Standard Columns
-            if ($global:dt.Columns.Count -gt 0) {
+            # if ($global:dt.Columns.Count -gt 0) {
                 if (!$global:dt.Columns["WebAppURL"]) {
                     $global:dt.Columns.Add("WebAppURL") | Out-Null
                 }
@@ -106,7 +106,7 @@ Function RunQuery() {
                 if (!$global:dt.Columns["ContentDB"]) {
                     $global:dt.Columns.Add("ContentDB") | Out-Null
                 }
-            }
+            # }
 		
             # Result Rows
             foreach ($r in $res) {
